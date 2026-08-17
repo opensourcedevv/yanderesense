@@ -6294,9 +6294,9 @@ local VisualSections = {
     FOVChanger = Tabs.Visual:AddLeftGroupbox('FOV Changer'),
 }
 
-local KnifeTabbox = Tabs.Skin:AddLeftTabbox('Knife')
-local WeaponTabbox = Tabs.Skin:AddRightTabbox('Weapon')
-local GloveTabbox = Tabs.Skin:AddLeftTabbox('Glove')
+local KnifeTabbox = Tabs.Skin:AddLeftTabbox('Knife Changer')
+local WeaponTabbox = Tabs.Skin:AddRightTabbox('Weapon Skins')
+local GloveTabbox = Tabs.Skin:AddRightTabbox('Glove Changer')
 
 local SkinSections = {
     Knife = KnifeTabbox:AddTab('Visual'),
@@ -6343,7 +6343,7 @@ SkinSections.Knife:AddToggle('SkinKnifeChanger', {Text = 'Enable', Default = fal
     end
 end})
 SkinSections.Knife:AddDropdown('SkinKnifeModel', {
-    Text = 'Model', Values = #SC.AllKnives > 0 and SC.AllKnives or {"CT Knife"}, Default = 'Butterfly Knife',
+    Text = 'Knife', Values = #SC.AllKnives > 0 and SC.AllKnives or {"CT Knife"}, Default = 'Butterfly Knife',
     Callback = function()
         SC_syncSkin(Options.SkinKnifeModel, Options.SkinKnifeSkin, SC.KnifeSkins, SC.State.SavedKnifeSkins, "Inventory")
         if Toggles.SkinKnifeChanger and Toggles.SkinKnifeChanger.Value then
@@ -6355,20 +6355,17 @@ SkinSections.Knife:AddDropdown('SkinKnifeModel', {
 do
     local kn = (Options.SkinKnifeModel and Options.SkinKnifeModel.Value) or "Butterfly Knife"
     SkinSections.Knife:AddDropdown('SkinKnifeSkin', {
-        Text = 'Skin', Values = SC.KnifeSkins[kn] or {"Inventory"},
+        Text = 'Knife Skin', Values = SC.KnifeSkins[kn] or {"Inventory"},
         Default = SC.State.SavedKnifeSkins[kn] or "Inventory",
         Callback = function() SC_savePair(Options.SkinKnifeModel, Options.SkinKnifeSkin, SC.State.SavedKnifeSkins) end,
     })
 end
-SkinSections.Knife:AddButton('Random Skin', function()
-    SC_randomize(SC.AllKnives, SC.KnifeSkins, SC.State.SavedKnifeSkins, Options.SkinKnifeSkin, Options.SkinKnifeModel, "Inventory")
-end)
 task.defer(function() SC_syncSkin(Options.SkinKnifeModel, Options.SkinKnifeSkin, SC.KnifeSkins, SC.State.SavedKnifeSkins, "Inventory") end)
 
 SkinSections.Weapon:AddToggle('SkinWeaponChanger', {Text = 'Enable', Default = false})
 local _SC_prevWeapon = SC.AllWeapons[1]
 SkinSections.Weapon:AddDropdown('SkinWeaponModel', {
-    Text = 'Model', Values = #SC.AllWeapons > 0 and SC.AllWeapons or {"AK-47"}, Default = SC.AllWeapons[1] or "AK-47",
+    Text = 'Weapon', Values = #SC.AllWeapons > 0 and SC.AllWeapons or {"AK-47"}, Default = SC.AllWeapons[1] or "AK-47",
     Callback = function()
         local wn = Options.SkinWeaponModel and Options.SkinWeaponModel.Value
         if _SC_prevWeapon and _SC_prevWeapon ~= wn then
@@ -6382,20 +6379,17 @@ SkinSections.Weapon:AddDropdown('SkinWeaponModel', {
 do
     local wn = (Options.SkinWeaponModel and Options.SkinWeaponModel.Value) or (SC.AllWeapons[1] or "AK-47")
     SkinSections.Weapon:AddDropdown('SkinWeaponSkin', {
-        Text = 'Skin', Values = SC.AllSkins[wn] or {"Inventory"},
+        Text = 'Weapon Skin', Values = SC.AllSkins[wn] or {"Inventory"},
         Default = SC.State.SavedWeaponSkins[wn] or "Inventory",
         Callback = function() SC_savePair(Options.SkinWeaponModel, Options.SkinWeaponSkin, SC.State.SavedWeaponSkins) end,
     })
 end
-SkinSections.Weapon:AddButton('Random Skin', function()
-    SC_randomize(SC.AllWeapons, SC.AllSkins, SC.State.SavedWeaponSkins, Options.SkinWeaponSkin, Options.SkinWeaponModel, "Inventory")
-end)
 task.defer(function() SC_syncSkin(Options.SkinWeaponModel, Options.SkinWeaponSkin, SC.AllSkins, SC.State.SavedWeaponSkins, "Inventory") end)
 
 SkinSections.Glove:AddToggle('SkinGloveChanger', {Text = 'Enable', Default = false})
 if #SC.AllGloveNames > 0 then
     SkinSections.Glove:AddDropdown('SkinGloveModel', {
-        Text = 'Model', Values = SC.AllGloveNames, Default = SC.AllGloveNames[1],
+        Text = 'Glove', Values = SC.AllGloveNames, Default = SC.AllGloveNames[1],
         Callback = function()
             SC_syncSkin(Options.SkinGloveModel, Options.SkinGloveSkin, SC.AllGloves, SC.State.SavedGloveSkins, "Default")
             local gn = Options.SkinGloveModel and Options.SkinGloveModel.Value
@@ -6406,7 +6400,7 @@ if #SC.AllGloveNames > 0 then
         local gn = (Options.SkinGloveModel and Options.SkinGloveModel.Value) or SC.AllGloveNames[1]
         local skins = SC.AllGloves[gn] or {"Default"}
         SkinSections.Glove:AddDropdown('SkinGloveSkin', {
-            Text = 'Skin', Values = skins, Default = SC.State.SavedGloveSkins[gn] or skins[1] or "Default",
+            Text = 'Glove Skin', Values = skins, Default = SC.State.SavedGloveSkins[gn] or skins[1] or "Default",
             Callback = function()
                 SC.lastGlove = Options.SkinGloveModel and Options.SkinGloveModel.Value
                 SC.lastGloveSkin = Options.SkinGloveSkin and Options.SkinGloveSkin.Value
@@ -6414,22 +6408,29 @@ if #SC.AllGloveNames > 0 then
             end,
         })
     end
-    SkinSections.Glove:AddButton('Random Skin', function()
-        local cur = SC_randomize(SC.AllGloveNames, SC.AllGloves, SC.State.SavedGloveSkins, Options.SkinGloveSkin, Options.SkinGloveModel, "Default")
-        if cur then SC.lastGlove, SC.lastGloveSkin = cur, SC.State.SavedGloveSkins[cur] end
-    end)
     task.defer(function() SC_syncSkin(Options.SkinGloveModel, Options.SkinGloveSkin, SC.AllGloves, SC.State.SavedGloveSkins, "Default") end)
 end
 
+SkinSections.Knife:AddButton('Random Skin', function()
+    SC_randomize(SC.AllKnives, SC.KnifeSkins, SC.State.SavedKnifeSkins, Options.SkinKnifeSkin, Options.SkinKnifeModel, "Inventory")
+end)
+SkinSections.Weapon:AddButton('Random Skin', function()
+    SC_randomize(SC.AllWeapons, SC.AllSkins, SC.State.SavedWeaponSkins, Options.SkinWeaponSkin, Options.SkinWeaponModel, "Inventory")
+end)
+SkinSections.Glove:AddButton('Random Skin', function()
+    local cur = SC_randomize(SC.AllGloveNames, SC.AllGloves, SC.State.SavedGloveSkins, Options.SkinGloveSkin, Options.SkinGloveModel, "Default")
+    if cur then SC.lastGlove, SC.lastGloveSkin = cur, SC.State.SavedGloveSkins[cur] end
+end)
+
 SkinSections.KnifeInventory:AddToggle('SkinInvKnifeEnable', {Text = 'Enable', Default = false})
 SkinSections.KnifeInventory:AddDropdown('SkinInvKnifeModel', {
-    Text = 'Model', Values = #SC.AllKnives > 0 and SC.AllKnives or {"CT Knife"}, Default = 'Butterfly Knife',
+    Text = 'Knife', Values = #SC.AllKnives > 0 and SC.AllKnives or {"CT Knife"}, Default = 'Butterfly Knife',
     Callback = function() SC_syncSkin(Options.SkinInvKnifeModel, Options.SkinInvKnifeSkin, SC.KnifeSkins, SC.State.InvKnifeSkins, "Inventory") end,
 })
 do
     local kn = (Options.SkinInvKnifeModel and Options.SkinInvKnifeModel.Value) or "Butterfly Knife"
     SkinSections.KnifeInventory:AddDropdown('SkinInvKnifeSkin', {
-        Text = 'Skin', Values = SC.KnifeSkins[kn] or {"Inventory"},
+        Text = 'Knife Skin', Values = SC.KnifeSkins[kn] or {"Inventory"},
         Default = SC.State.InvKnifeSkins[kn] or "Inventory",
         Callback = function() SC_savePair(Options.SkinInvKnifeModel, Options.SkinInvKnifeSkin, SC.State.InvKnifeSkins) end,
     })
@@ -6439,7 +6440,7 @@ task.defer(function() SC_syncSkin(Options.SkinInvKnifeModel, Options.SkinInvKnif
 SkinSections.WeaponInventory:AddToggle('SkinInvWeaponEnable', {Text = 'Enable', Default = false})
 local _SC_prevInvWeapon = SC.AllWeapons[1]
 SkinSections.WeaponInventory:AddDropdown('SkinInvWeaponModel', {
-    Text = 'Model', Values = #SC.AllWeapons > 0 and SC.AllWeapons or {"AK-47"}, Default = SC.AllWeapons[1] or "AK-47",
+    Text = 'Weapon', Values = #SC.AllWeapons > 0 and SC.AllWeapons or {"AK-47"}, Default = SC.AllWeapons[1] or "AK-47",
     Callback = function()
         local wn = Options.SkinInvWeaponModel and Options.SkinInvWeaponModel.Value
         if _SC_prevInvWeapon and _SC_prevInvWeapon ~= wn then
@@ -6453,7 +6454,7 @@ SkinSections.WeaponInventory:AddDropdown('SkinInvWeaponModel', {
 do
     local wn = (Options.SkinInvWeaponModel and Options.SkinInvWeaponModel.Value) or (SC.AllWeapons[1] or "AK-47")
     SkinSections.WeaponInventory:AddDropdown('SkinInvWeaponSkin', {
-        Text = 'Skin', Values = SC.AllSkins[wn] or {"Inventory"},
+        Text = 'Weapon Skin', Values = SC.AllSkins[wn] or {"Inventory"},
         Default = SC.State.InvWeaponSkins[wn] or "Inventory",
         Callback = function() SC_savePair(Options.SkinInvWeaponModel, Options.SkinInvWeaponSkin, SC.State.InvWeaponSkins) end,
     })
@@ -6463,19 +6464,22 @@ task.defer(function() SC_syncSkin(Options.SkinInvWeaponModel, Options.SkinInvWea
 SkinSections.GloveInventory:AddToggle('SkinInvGloveEnable', {Text = 'Enable', Default = false})
 if #SC.AllGloveNames > 0 then
     SkinSections.GloveInventory:AddDropdown('SkinInvGloveModel', {
-        Text = 'Model', Values = SC.AllGloveNames, Default = SC.AllGloveNames[1],
+        Text = 'Glove', Values = SC.AllGloveNames, Default = SC.AllGloveNames[1],
         Callback = function() SC_syncSkin(Options.SkinInvGloveModel, Options.SkinInvGloveSkin, SC.AllGloves, SC.State.InvGloveSkins, "Default") end,
     })
     do
         local gn = (Options.SkinInvGloveModel and Options.SkinInvGloveModel.Value) or SC.AllGloveNames[1]
         local skins = SC.AllGloves[gn] or {"Default"}
         SkinSections.GloveInventory:AddDropdown('SkinInvGloveSkin', {
-            Text = 'Skin', Values = skins, Default = SC.State.InvGloveSkins[gn] or skins[1] or "Default",
+            Text = 'Glove Skin', Values = skins, Default = SC.State.InvGloveSkins[gn] or skins[1] or "Default",
             Callback = function() SC_savePair(Options.SkinInvGloveModel, Options.SkinInvGloveSkin, SC.State.InvGloveSkins) end,
         })
     end
     task.defer(function() SC_syncSkin(Options.SkinInvGloveModel, Options.SkinInvGloveSkin, SC.AllGloves, SC.State.InvGloveSkins, "Default") end)
 end
+
+local InvSections = { All = Tabs.Skin:AddLeftGroupbox('Inv Unlock') }
+InvSections.All:AddButton('Unlock All Skins', function() end)
 
 SC.setupArmsWatcher()
 
@@ -6824,7 +6828,7 @@ do
             if unloadValenok then unloadValenok() end
         end,
     })
-    ConfigSection:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu' })
+    ConfigSection:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu' })
     ConfigSection:AddSlider('MenuUpdateRate', {
         Text = 'Update rate',
         Default = 200,
@@ -6836,10 +6840,10 @@ do
     ConfigSection:AddDropdown('MenuFont', {
         Text = 'Menu font',
         Values = {
-            'Ubuntu', 'Code', 'Gotham', 'GothamMedium', 'GothamBold',
+            'Code', 'Ubuntu', 'Gotham', 'GothamMedium', 'GothamBold',
             'SourceSans', 'SourceSansBold', 'Roboto', 'RobotoMono', 'Arcade', 'Legacy',
         },
-        Default = 'Ubuntu',
+        Default = 'Code',
         Callback = function(value)
             applyMenuFont(value)
         end,
@@ -6884,7 +6888,7 @@ end
 
 Library.ToggleKeybind = Options.MenuKeybind
 Library.KeybindFrame.Visible = true
-applyMenuFont(Options.MenuFont and Options.MenuFont.Value or 'Ubuntu')
+applyMenuFont(Options.MenuFont and Options.MenuFont.Value or 'Code')
 task.defer(refreshMenuFontPreviews)
 
 do
