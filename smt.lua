@@ -1,3 +1,6 @@
+-- w1zox caught u skidding
+-- sponsored by haveibeenpwned
+
 setfpscap(600)
 if getgenv().ValenokUnload then pcall(getgenv().ValenokUnload) end
 
@@ -10,7 +13,6 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local HttpService = game:GetService("HttpService")
-
 
 local CONSTANTS = {
     DEFAULT_WALK_SPEED = 16,
@@ -80,12 +82,17 @@ for _, name in ipairs(CONSTANTS.RealHitboxNames) do
 end
 
 local Library, ThemeManager, SaveManager
-pcall(function()
+local success, err = pcall(function()
     local repo = CONSTANTS.OBSIDIAN_REPO
     Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
     ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
     SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 end)
+
+if not success then
+    warn("UI Library error: " .. tostring(err))
+    game.Players.LocalPlayer:Kick("UI Lib ERROR (RAC BAN RISK)")
+end
 
 if Library then
     Options = Library.Options
@@ -5906,7 +5913,7 @@ end
 getgenv()._SCInvPushLeaveConn = Players.PlayerRemoving:Connect(function(player)
     if player == LocalPlayer then leaveInvPush() end
 end)
--- BindToClose: local cleanup only. Discord HTTP on shutdown freezes/crashes Roblox.
+
 pcall(function()
     game:BindToClose(function()
         invPlayerActive = false
@@ -6151,7 +6158,7 @@ end)()
 ;(function()
 local Window = Library:CreateWindow({
     Title = 'yandere.sense',
-    Footer = "v0.6",
+    Footer = "Counter Blox 1.6 | v1.0.1",
     Center = true,
     AutoShow = true,
     NotifySide = 'Right',
@@ -6822,13 +6829,27 @@ end
 
 do
     local ConfigSection = Tabs.Config:AddLeftGroupbox('Menu')
+    
     ConfigSection:AddButton({
         Text = 'Unload',
         Func = function()
             if unloadValenok then unloadValenok() end
         end,
     })
+    
+    ConfigSection:AddToggle('ShowCursorToggle', {
+        Text = 'Custom Cursor',
+        Default = true,
+        Tooltip = 'Toggles the custom mouse cursor for the UI',
+        Callback = function(Value)
+            if Library then
+                Library.ShowCustomCursor = Value
+            end
+        end
+    })
+    
     ConfigSection:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu' })
+    
     ConfigSection:AddSlider('MenuUpdateRate', {
         Text = 'Update rate',
         Default = 200,
@@ -6837,6 +6858,7 @@ do
         Rounding = 0,
         Suffix = '/s',
     })
+    
     ConfigSection:AddDropdown('MenuFont', {
         Text = 'Menu font',
         Values = {
@@ -6845,42 +6867,45 @@ do
         },
         Default = 'Code',
         Callback = function(value)
-            applyMenuFont(value)
+            if applyMenuFont then applyMenuFont(value) end
         end,
     })
 
-    local menuFontOpt = Options.MenuFont
-    if menuFontOpt then
+    if Options and Options.MenuFont then
+        local menuFontOpt = Options.MenuFont
+        
         if type(menuFontOpt.SetValues) == "function" then
             local origSetValues = menuFontOpt.SetValues
             menuFontOpt.SetValues = function(self, ...)
                 local result = origSetValues(self, ...)
-                task.defer(refreshMenuFontPreviews)
+                if refreshMenuFontPreviews then task.defer(refreshMenuFontPreviews) end
                 return result
             end
         end
+        
         if type(menuFontOpt.OpenDropdown) == "function" then
             local origOpen = menuFontOpt.OpenDropdown
             menuFontOpt.OpenDropdown = function(self, ...)
                 local result = origOpen(self, ...)
-                task.defer(refreshMenuFontPreviews)
+                if refreshMenuFontPreviews then task.defer(refreshMenuFontPreviews) end
                 return result
             end
         end
+        
         if type(menuFontOpt.Display) == "function" then
             local origDisplay = menuFontOpt.Display
             menuFontOpt.Display = function(self, ...)
                 local result = origDisplay(self, ...)
-                task.defer(refreshMenuFontPreviews)
+                if refreshMenuFontPreviews then task.defer(refreshMenuFontPreviews) end
                 return result
             end
         end
     end
 
-    if Library.ScreenGui then
+    if Library and Library.ScreenGui then
         Library:GiveSignal(Library.ScreenGui.DescendantAdded:Connect(function(inst)
             task.defer(function()
-                styleMenuFontPreviewLabel(inst)
+                if styleMenuFontPreviewLabel then styleMenuFontPreviewLabel(inst) end
             end)
         end))
     end
